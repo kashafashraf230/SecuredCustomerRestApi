@@ -6,7 +6,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Base64;
+
+import static com.example.customerapi.CustomerResource.dataSource;
 
 @Provider
 public class SecurityFilter implements ContainerRequestFilter {
@@ -27,7 +32,7 @@ public class SecurityFilter implements ContainerRequestFilter {
             String username = parts[0];
             String password = parts[1];
 
-            if(username.equals("user") && password.equals("pwd")){
+            if(isCustomer(username, password)){
                 return;
             }
 
@@ -35,6 +40,23 @@ public class SecurityFilter implements ContainerRequestFilter {
         containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                 .entity("Unauthorized User!")
                 .build());
+    }
+
+    private boolean isCustomer(String username, String password){
+
+        try {
+            Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select * from data where username = '"+username+"' and password = '"+password+"'");
+            if(resultSet.next()) {
+
+                return true;
+            }
+            return false;
+        }catch(Exception e ){
+            System.out.println(e.toString());
+        }
+        return false;
     }
 
 }

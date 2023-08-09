@@ -39,7 +39,6 @@ public class CustomerResource {
 
     private static List<Customer> customers = new ArrayList<>();
 
-
     // Create a new customer
     @POST
     public Response createCustomer(Customer customer) {
