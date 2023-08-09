@@ -11,7 +11,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Base64;
 
-import static com.example.customerapi.CustomerResource.dataSource;
+import static com.example.customerapi.ApacheDBCP.dataSource;
+
 
 @Provider
 public class SecurityFilter implements ContainerRequestFilter {
@@ -47,7 +48,7 @@ public class SecurityFilter implements ContainerRequestFilter {
         try {
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from data where username = '"+username+"' and password = '"+password+"'");
+            ResultSet resultSet = statement.executeQuery("select * from userroles where username = '"+username+"' and password = '"+password+"'");
             if(resultSet.next()) {
 
                 return true;

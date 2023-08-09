@@ -11,33 +11,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.customerapi.ApacheDBCP.dataSource;
+
 
 @Path("/customer-resource")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CustomerResource {
 
-    public static BasicDataSource dataSource = null;
-
-    static {
-        String driver = "com.mysql.cj.jdbc.Driver";
-        dataSource = new BasicDataSource();
-        dataSource.setUrl("jdbc:mysql://localhost:3306/customer");
-        dataSource.setUsername("root");
-        dataSource.setPassword("admin");
-
-        dataSource.setMinIdle(5);
-        dataSource.setMaxIdle(10);
-        dataSource.setMaxTotal(25);
-        try {
-            Class.forName(driver);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
     private static List<Customer> customers = new ArrayList<>();
+   static int count = 0;
 
     // Create a new customer
     @POST
@@ -46,16 +29,14 @@ public class CustomerResource {
 
         try {
             customers.add(customer);
-            customer.setId((long) (customers.size() + 1));
+            customer.setId((long) (count + 1));
             Long id = customer.getId();
             String firstName = customer.getFirstName();
             String lastName = customer.getLastName();
-            String username = customer.getUsername();
-            String password = customer.getPassword();
             System.out.println("Name" + firstName);
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
-            int result = statement.executeUpdate("INSERT INTO data (id, firstName, lastName, username, password) VALUES('"+id+"', '"+firstName+"', '"+lastName+"', '"+username+"', '"+password+"')");
+            int result = statement.executeUpdate("INSERT INTO data (id, firstName, lastName) VALUES('"+id+"', '"+firstName+"', '"+lastName+"')");
             System.out.println("Result" + result);
             if (result == 1) {
                 return Response.status(Response.Status.CREATED).entity(customer).build();
@@ -72,6 +53,7 @@ public class CustomerResource {
     public List<Customer> getAllCustomers() {
 
         try {
+
             List<Customer> allCustomers = new ArrayList<>();
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
@@ -82,12 +64,12 @@ public class CustomerResource {
                 getCustomer.setId(resultSet.getLong("id"));
                 getCustomer.setFirstName(resultSet.getString("firstName"));
                 getCustomer.setLastName(resultSet.getString("lastName"));
-                getCustomer.setUsername(resultSet.getString("username"));
-                getCustomer.setPassword(resultSet.getString("password"));
 
                 allCustomers.add(getCustomer);
 
             }
+
+            count = allCustomers.size();
             return allCustomers;
         }
         catch (Exception e){
@@ -108,7 +90,7 @@ public class CustomerResource {
             ResultSet resultSet = statement.executeQuery("select * from data where id = '"+id+"'");
             if(resultSet.next()) {
 
-                Customer customer = new Customer(resultSet.getLong("id"), resultSet.getString("firstName" ),resultSet.getString("lastName" ), resultSet.getString("username"), resultSet.getString("password"));
+                Customer customer = new Customer(resultSet.getLong("id"), resultSet.getString("firstName" ),resultSet.getString("lastName" ));
                 return Response.ok(customer).build();
             }
             else {
@@ -130,9 +112,9 @@ public class CustomerResource {
 
             Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement();
-            int result = statement.executeUpdate("UPDATE data SET id = '"+id+"',firstName = '"+updatedCustomer.getFirstName()+"' ,lastName = '"+updatedCustomer.getLastName()+"', username = '"+updatedCustomer.getUsername()+"' ,password = '"+updatedCustomer.getPassword()+"'  WHERE id='"+id+"'" );
+            int result = statement.executeUpdate("UPDATE data SET id = '"+id+"',firstName = '"+updatedCustomer.getFirstName()+"' ,lastName = '"+updatedCustomer.getLastName()+"'  WHERE id='"+id+"'" );
             if(result > 0) {
-                Customer customer = new Customer(id, updatedCustomer.getFirstName(), updatedCustomer.getLastName(), updatedCustomer.getUsername(), updatedCustomer.getPassword());
+                Customer customer = new Customer(id, updatedCustomer.getFirstName(), updatedCustomer.getLastName());
                 return Response.ok(customer).build();
             }
             else {
