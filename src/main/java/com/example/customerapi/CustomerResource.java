@@ -9,7 +9,6 @@ import java.util.List;
 @Path("/customer-resource")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public class CustomerResource {
 
     private static List<Customer> customers = new ArrayList<>();
