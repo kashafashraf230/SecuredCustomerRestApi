@@ -36,3 +36,9 @@
 16:24:05.698 2023-08-10 16:24:05_GET_Authentication_Authentication successful
 16:24:05.698 2023-08-10 16:24:05_GET_getAllCustomers_Request received
 16:24:05.730 2023-08-10 16:24:05_GET_getAllCustomers_Response sent
+19:57:48.312 WELD-000900: 3.1.9 (Final)
+19:57:48.924 WELD-ENV-000014: Falling back to Java Reflection for bean-discovery-mode="annotated" discovery. Add org.jboss:jandex to the classpath to speed-up startup.
+19:57:49.442 WELD-000101: Transactional services not available. Injection of @Inject UserTransaction not available. Transactional observers will be invoked synchronously.
+19:57:51.634 WELD-ENV-002003: Weld SE container 2c0426db-5e73-490f-b37b-8412ef7ca768 initialized
+19:57:52.542 2023-08-10 19:57:52_GET_Authentication_Authentication failed
+19:57:53.323 2023-08-10 19:57:53_GET_Authentication_Authentication failed
