@@ -1,5 +1,8 @@
 package com.example.customerapi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
@@ -9,7 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 
 import static com.example.customerapi.ApacheDBCP.dataSource;
 
@@ -17,6 +22,7 @@ import static com.example.customerapi.ApacheDBCP.dataSource;
 @Provider
 public class SecurityFilter implements ContainerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String AUTHORIZATION_HEADER_PREFIX = "Basic";
     @Override
@@ -33,17 +39,19 @@ public class SecurityFilter implements ContainerRequestFilter {
             String username = parts[0];
             String password = parts[1];
 
-            if(isCustomer(username, password)){
+            if(isUser(username, password)){
+                logger.info(getLogMessage(containerRequestContext, "Authentication successful"));
                 return;
             }
 
         }
+        logger.warn(getLogMessage(containerRequestContext, "Authentication failed"));
         containerRequestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                 .entity("Unauthorized User!")
                 .build());
     }
 
-    private boolean isCustomer(String username, String password){
+    private boolean isUser(String username, String password){
 
         try {
             Connection connection = dataSource.getConnection();
@@ -58,6 +66,14 @@ public class SecurityFilter implements ContainerRequestFilter {
             System.out.println(e.toString());
         }
         return false;
+    }
+
+    private String getLogMessage(ContainerRequestContext requestContext, String message) {
+        return String.format("%s_%s_%s_%s",
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()),
+                requestContext.getMethod(),
+                "Authentication",
+                message);
     }
 
 }
